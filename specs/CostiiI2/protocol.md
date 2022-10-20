@@ -26,5 +26,3 @@ UNSUPPORTED OP, SUPORTED OP ARE <list Op>
 
 nfjeailjfela
 BAD SYNTAX,syntax is of form <command> <n1> <OP> <n2>
-
-## cedric
