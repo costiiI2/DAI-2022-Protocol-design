@@ -1,44 +1,42 @@
-#costi proposal
+# costi proposal
+### Overall behavior
 
-## Overall behavior
-
-# Transpor protocol
+#### Transpor protocol
 TCP 
 
-# Addresse and Port
+#### Addresse and Port
 PORT 420
 
-# First responder
+#### First responder
 client speaks first asking for a connection while server awaits
 
-# Last responder
+#### Last responder
 client ends connection when he is done
 
 ## Message
 
-# Syntax
-<commande> <n1> <OPERATION> <n2>
+#### Syntax
+"commande" "n1" "OPERATION" "n2"
 
-# Flow
+#### Flow
 clients asks for a computation server responds with result or error message
 
-# Error handling
+#### Error handling
 when message recived it analyse if its formed correctly(syntax and operator)
-
 
 ## Sepcifications
 
-# Suported Operations
-+ - *
+#### Suported Operations
+ADD MULT SUB
 
-# Error Handling flow
+#### Error Handling flow
 bad syntax ask again.
 not supported OPERATION ask again.
 
-# Extensibility
+## Extensibility
 add mor operation / % sqrt pow
 
-# Examples
+#### Examples
 <commande> 2 ADD 3
 RESULT 5
 
