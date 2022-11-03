@@ -40,9 +40,10 @@ public class Client {
             String input = "";
             while(true){
                 BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-                input = br.readLine()+"\n";
-                //TODO ajouter end f line TCP
+                input = br.readLine();
+
                 if(input.equals("exit"))break;
+                input += "\n";
                 toServer.write(input.getBytes());
                 if(input.endsWith("\n")){
                     toServer.flush();
