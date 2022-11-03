@@ -43,10 +43,11 @@ public class Client {
 
                 BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
                 String input = br.readLine();
-                if (input.equals("exit")) break;
                 input = input + "\n";
+
                 toServer.write(input.getBytes());
                 toServer.flush();
+                if (input.equals("exit\n"))break;
 
                 //get server respones to query
                 read = fromServer.read(buffer);
