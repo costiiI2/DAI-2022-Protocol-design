@@ -24,35 +24,35 @@ public class Client {
      */
 
     public static void main(String[] args) {
-            // Log output on a single line
-                System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%6$s%n");
+        // Log output on a single line
+        System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%6$s%n");
 
-                Socket clientSocket = null;
-                try {
-                    clientSocket = new Socket(IP, PORT);
-                    InputStream fromServer = clientSocket.getInputStream();
-                    OutputStream toServer = clientSocket.getOutputStream();
+        Socket clientSocket = null;
+        try {
+            clientSocket = new Socket(IP, PORT);
+            InputStream fromServer = clientSocket.getInputStream();
+            OutputStream toServer = clientSocket.getOutputStream();
 
-                    LOG.log(Level.INFO, "Response sent by the server: ");
-                    LOG.log(Level.INFO, fromServer.toString());
+            LOG.log(Level.INFO, "Response sent by the server: ");
+            LOG.log(Level.INFO, fromServer.toString());
 
-                    //write to server from console
-                    String input = "";
-                    while(true){
-                        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-                        input = br.readLine();
+            //write to server from console
+            String input = "";
+            while (true) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                input = br.readLine();
 
-                        if(input.equals("exit"))break;
-                        //TODO le premier caractere est pas lu donc j'ai ajouer un \n
-                        input = "\n" + input + "\n";
+                if (input.equals("exit")) break;
+                //TODO le premier caractere est pas lu donc j'ai ajouer un \n
+                input = "\n" + input + "\n";
 
-                        toServer.write(input.getBytes());
-                        toServer.flush();
-                    }
-                    clientSocket.close();
-                } catch (IOException e) {
-                    throw new RuntimeException("Error could create a socket form "+IP+" on port "+PORT+ ".\nError:",e);
-                }
+                toServer.write(input.getBytes());
+                toServer.flush();
+            }
+            clientSocket.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Error could create a socket form " + IP + " on port " + PORT + ".\nError:", e);
+        }
 
         /* TODO: Implement the client here, according to your specification
          *   The client has to do the following:
