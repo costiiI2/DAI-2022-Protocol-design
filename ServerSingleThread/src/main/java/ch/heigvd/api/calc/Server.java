@@ -78,12 +78,14 @@ public class Server {
             toClient.write(message, 0, message.length());
             toClient.flush();
 
-            ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream();
 
-            while (fromClient.read() != -1) {
+            while (true) {
                 String command = fromClient.readLine();
+                if (command.equals("exit")) {
+                    LOG.log(Level.INFO, "Client disconnected");
+                    break;
+                }
                 LOG.log(Level.INFO, "Received command: " + command);
-                //TODO DEBUG si on ecrit 123 command vaut 23
                 String response = handleCommand(command);
                 LOG.log(Level.INFO, "Sending response: " + response);
                 toClient.write(response, 0, response.length());
