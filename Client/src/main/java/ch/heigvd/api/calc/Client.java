@@ -35,12 +35,13 @@ public class Client {
 
             LOG.log(Level.INFO, "Response sent by the server: ");
             LOG.log(Level.INFO, fromServer.toString());
-            
+
             //write to server from console
             String input = "";
             while(true){
                 BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
                 input = br.readLine()+"\n";
+                //TODO ajouter end f line TCP
                 if(input.equals("exit"))break;
                 toServer.write(input.getBytes());
                 if(input.endsWith("\n")){
