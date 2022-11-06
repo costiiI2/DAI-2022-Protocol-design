@@ -13,14 +13,16 @@ import java.util.logging.Logger;
 
 public class Server {
     private static final int BUFFER_SIZE = 1024;
+    //add operation here and in handle command
     private final String OPERATORS = "ADD,MULT,SUB,DIV";
-
+    private final String FORMAT = "OPERATION,OPERAND1,OPERAND2 or OPERAND1,OPREATION,OPERAND2";
+    private final String welcomeMessage = "Welcome to the calculator server.\n" +
+            "Syntax must be:" + FORMAT + "\nValid operations are: " + OPERATORS + "\nPlease enter a command:";
+    private final String errorMessage = "Invalid command: syntax can be one of the following:" + FORMAT
+            + "Valid operation are " + OPERATORS + "\nPlease enter a command:";
     private static final int PORT = 420;
-
-
     private final static Logger LOG = Logger.getLogger(Server.class.getName());
-
-
+    
     /**
      * Main function to start the server
      */
@@ -55,29 +57,29 @@ public class Server {
         try (BufferedReader fromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
              BufferedWriter toClient = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"))) {
 
-            LOG.log(Level.INFO, "Sent data to client, doing a pause...");
-            String welcomeMessage = "Welcome to the calculator server.\n" +
-                    "Requiered form is: OPERATION N1 N2 or N1 OPERATION N2\n" + "Valid operations are: " + OPERATORS + "\nPlease enter a command:";
+            //welcome client
             toClient.write(welcomeMessage, 0, welcomeMessage.length());
             toClient.flush();
+            LOG.log(Level.INFO, "Sent data to client, doing a pause...");
 
-            String response = "";
+            //read client input
             while (true) {
                 String command = fromClient.readLine();
-                if (command.equals("exit")) {
-                    LOG.log(Level.INFO, "Client disconnected");
+                if (command.equals("exit"))
                     break;
-                }
                 LOG.log(Level.INFO, "Received command: " + command);
-                response = handleCommand(command) + "\nexit to quit or enter a new command:";
-                LOG.log(Level.INFO, "Sending response: " + response);
+                String response = handleCommand(command) + "\nExit to quit or enter a new command:";
+
+                // Send response to client
                 toClient.write(response, 0, response.length());
                 toClient.flush();
+                LOG.log(Level.INFO, "Sending response: " + response);
 
             }
-            LOG.log(Level.INFO, "closing server: ");
-            response = "closing server bye bye";
-            toClient.write(response, 0, response.length());
+            //say goodbye to client
+
+            LOG.log(Level.INFO, "closing connection: ");
+            toClient.write("Bye bye!\n", 0, 9);
             toClient.flush();
             clientSocket.close();
         } catch (UnsupportedEncodingException e) {
@@ -91,8 +93,7 @@ public class Server {
         command = command.replace("\n", "");
         String[] commands = command.split(" ");
         if (commands.length != 3) {
-            return "Invalid command: syntax can be one of the following: OPERATION N1 N2 or N1 OPERATION N2 \n "
-                    + "Valid operation are " + OPERATORS + "\nPlease enter a command:";
+            return errorMessage;
         }
         //basic notation
         int n1;
@@ -100,43 +101,34 @@ public class Server {
         try {
             n1 = Integer.parseInt(commands[0]);
             n2 = Integer.parseInt(commands[2]);
-            if (commands[1].equals("ADD")) {
-                return String.valueOf(Integer.parseInt(commands[0]) + Integer.parseInt(commands[2]));
-            } else if (commands[1].equals("MULT")) {
-                return String.valueOf(Integer.parseInt(commands[0]) * Integer.parseInt(commands[2]));
-            } else if (commands[1].equals("DIV")) {
-                if (Integer.parseInt(commands[2]) == 0) {
-                    return "Division by 0 is not allowed";
-                }
-                return String.valueOf(Integer.parseInt(commands[0]) / Integer.parseInt(commands[2]));
-            } else if (commands[1].equals("SUB")) {
-                return String.valueOf(Integer.parseInt(commands[0]) - Integer.parseInt(commands[2]));
-            }
+           return operationResult(commands[1], n1, n2);
         } catch (NumberFormatException e) {
-
+            //do nothing
         }
         //Polish notation
         try {
             n1 = Integer.parseInt(commands[1]);
             n2 = Integer.parseInt(commands[2]);
-            if (commands[0].equals("ADD")) {
-                return String.valueOf(Integer.parseInt(commands[1]) + Integer.parseInt(commands[2]));
-            } else if (commands[0].equals("MULT")) {
-                return String.valueOf(Integer.parseInt(commands[1]) * Integer.parseInt(commands[2]));
-            } else if (commands[0].equals("DIV")) {
-                if (Integer.parseInt(commands[2]) == 0) {
-                    return "Division by 0 is not allowed";
-                }
-                return String.valueOf(Integer.parseInt(commands[1]) / Integer.parseInt(commands[2]));
-            } else if (commands[0].equals("SUB")) {
-                return String.valueOf(Integer.parseInt(commands[1]) - Integer.parseInt(commands[2]));
-            }
+           return operationResult(commands[0], n1, n2);
         } catch (NumberFormatException e) {
-
+            //do nothing
         }
-        return "Invalid command: syntax can be one of the following: OPERATION N1 N2 or N1 OPERATION N2 \n "
-                + "Valid operation are " + OPERATORS + "\nPlease enter a command:";
+        return errorMessage;
+    }
 
+    public String operationResult(String command, int n1, int n2) {
+        switch (command){
+            case "ADD":
+                return String.valueOf(n1 + n2);
+            case "SUB":
+                return String.valueOf(n1 - n2);
+            case "MULT":
+                return String.valueOf(n1 * n2);
+            case "DIV":
+                return String.valueOf(n1 / n2);
+            default:
+                return errorMessage;
+        }
     }
 }
 
