@@ -12,12 +12,13 @@ import java.util.logging.Logger;
 
 public class Server {
     private static final int BUFFER_SIZE = 1024;
-
+    private final String OPERATORS = "ADD,MULT,SUB,DIV";
 
     private static final int PORT = 420;
 
 
     private final static Logger LOG = Logger.getLogger(Server.class.getName());
+
 
     /**
      * Main function to start the server
@@ -32,12 +33,6 @@ public class Server {
      * Start the server on a listening socket.
      */
     private void start() {
-        /* TODO: implement the receptionist server here.
-         *  The receptionist just creates a server socket and accepts new client connections.
-         *  For a new client connection, the actual work is done by the handleClient method below.
-         * TODO cedric review
-         */
-
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             LOG.log(Level.INFO, "Server started on port " + PORT);
             while (true) {
@@ -48,37 +43,23 @@ public class Server {
         } catch (IOException e) {
             throw new RuntimeException("Error could not create a socket on port " + PORT + ".\nError:", e);
         }
-
-
     }
-
     /**
      * Handle a single client connection: receive commands and send back the result.
      *
      * @param clientSocket with the connection with the individual client.
      */
     private void handleClient(Socket clientSocket) {
-
-        /* TODO: implement the handling of a client connection according to the specification.
-         *   The server has to do the following:
-         *   - initialize the dialog according to the specification (for example send the list
-         *     of possible commands)
-         *   - In a loop:
-         *     - Read a message from the input stream (using BufferedReader.readLine)
-         *     - Handle the message
-         *     - Send to result to the client
-         *  TODO cedric review
-         */
-
         try (BufferedReader fromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
              BufferedWriter toClient = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"))) {
 
             LOG.log(Level.INFO, "Sent data to client, doing a pause...");
-            String message = "Welcome to the calculator server. Please enter a command: ";
-            toClient.write(message, 0, message.length());
+            String welcomeMessage = "Welcome to the calculator server.\n" +
+                    "OPERATION N1 N2 or N1 OPERATION N2\n" + "Valid operations are: " + OPERATORS + "\nPlease enter a command:";
+            toClient.write(welcomeMessage, 0, welcomeMessage.length());
             toClient.flush();
-
-
+            
+            String response="";
             while (true) {
                 String command = fromClient.readLine();
                 if (command.equals("exit")) {
@@ -86,13 +67,16 @@ public class Server {
                     break;
                 }
                 LOG.log(Level.INFO, "Received command: " + command);
-                String response = handleCommand(command);
+                 response = handleCommand(command)+"\nexit to quit or enter a new command:";
                 LOG.log(Level.INFO, "Sending response: " + response);
                 toClient.write(response, 0, response.length());
                 toClient.flush();
 
             }
             LOG.log(Level.INFO, "closing server: ");
+            response = "closing server bye bye";
+            toClient.write(response, 0, response.length());
+            toClient.flush();
             clientSocket.close();
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
@@ -102,26 +86,31 @@ public class Server {
     }
 
     private String handleCommand(String command) {
-
+        command = command.replace("\n", "");
         String[] commands = command.split(" ");
-        if (commands[0] == "ADD") {
+        if (commands.length != 3) {
+            return "Invalid command: syntax can be one of the following: OPERATION N1 N2 or N1 OPERATION N2 \n "
+               +     "Valid operation are "+ OPERATORS+"\nPlease enter a command:";
+        }
+        System.out.println(commands[0] + " " + commands[1] + " " + commands[2] + " ADD");
+        if (commands[0].equals("ADD")) {
             return String.valueOf(Integer.parseInt(commands[1]) + Integer.parseInt(commands[2]));
-        } else if (commands[0] == "MULT") {
+        } else if (commands[0].equals("MULT")) {
             return String.valueOf(Integer.parseInt(commands[1]) * Integer.parseInt(commands[2]));
-        } else if (commands[0] == "DIV") {
+        } else if (commands[0].equals("DIV")) {
             return String.valueOf(Integer.parseInt(commands[1]) / Integer.parseInt(commands[2]));
-        } else if (commands[0] == "SUB") {
+        } else if (commands[0].equals("SUB")) {
             return String.valueOf(Integer.parseInt(commands[1]) - Integer.parseInt(commands[2]));
-        } else if (commands[1] == "ADD") {
+        } else if (commands[1].equals("ADD")) {
             return String.valueOf(Integer.parseInt(commands[0]) + Integer.parseInt(commands[2]));
-        } else if (commands[1] == "MULT") {
+        } else if (commands[1].equals("MULT")) {
             return String.valueOf(Integer.parseInt(commands[0]) * Integer.parseInt(commands[2]));
-        } else if (commands[1] == "DIV") {
+        } else if (commands[1].equals("DIV")) {
             return String.valueOf(Integer.parseInt(commands[0]) / Integer.parseInt(commands[2]));
-        } else if (commands[1] == "SUB") {
+        } else if (commands[1].equals("SUB")) {
             return String.valueOf(Integer.parseInt(commands[0]) - Integer.parseInt(commands[2]));
         } else {
-            return "Error";
+            return "Invalid command. Please enter a command:";
         }
     }
 }
