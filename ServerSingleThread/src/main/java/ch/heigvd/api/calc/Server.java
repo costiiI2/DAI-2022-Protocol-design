@@ -102,10 +102,28 @@ public class Server {
     }
 
     private String handleCommand(String command) {
-        return "Command not implemented";
+
+        String[] commands = command.split(" ");
+        if (commands[0] == "ADD") {
+            return String.valueOf(Integer.parseInt(commands[1]) + Integer.parseInt(commands[2]));
+        } else if (commands[0] == "MULT") {
+            return String.valueOf(Integer.parseInt(commands[1]) * Integer.parseInt(commands[2]));
+        } else if (commands[0] == "DIV") {
+            return String.valueOf(Integer.parseInt(commands[1]) / Integer.parseInt(commands[2]));
+        } else if (commands[0] == "SUB") {
+            return String.valueOf(Integer.parseInt(commands[1]) - Integer.parseInt(commands[2]));
+        } else if (commands[1] == "ADD") {
+            return String.valueOf(Integer.parseInt(commands[0]) + Integer.parseInt(commands[2]));
+        } else if (commands[1] == "MULT") {
+            return String.valueOf(Integer.parseInt(commands[0]) * Integer.parseInt(commands[2]));
+        } else if (commands[1] == "DIV") {
+            return String.valueOf(Integer.parseInt(commands[0]) / Integer.parseInt(commands[2]));
+        } else if (commands[1] == "SUB") {
+            return String.valueOf(Integer.parseInt(commands[0]) - Integer.parseInt(commands[2]));
+        } else {
+            return "Error";
+        }
     }
-
-
 }
 
 
