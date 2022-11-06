@@ -12,17 +12,16 @@ import java.util.logging.Logger;
  */
 
 public class Server {
-    private static final int BUFFER_SIZE = 1024;
-    //add operation here and in handle command
-    private final String OPERATORS = "ADD,MULT,SUB,DIV";
-    private final String FORMAT = "OPERATION,OPERAND1,OPERAND2 or OPERAND1,OPREATION,OPERAND2";
+
+    private final String HANDELED_OPERATORS = "ADD,MULT,SUB,DIV";
+    private final String FORMAT = "OPERATOR,OP1,OP2 or OP1,OPERATOR,OP2";
     private final String welcomeMessage = "Welcome to the calculator server.\n" +
-            "Syntax must be:" + FORMAT + "\nValid operations are: " + OPERATORS + "\nPlease enter a command:";
+            "Syntax must be:" + FORMAT + "\nValid operations are: " + HANDELED_OPERATORS + "\nPlease enter a command:";
     private final String errorMessage = "Invalid command: syntax can be one of the following:" + FORMAT
-            + "Valid operation are " + OPERATORS + "\nPlease enter a command:";
+            + "Valid operation are " + HANDELED_OPERATORS + "\nPlease enter a command:";
     private static final int PORT = 420;
     private final static Logger LOG = Logger.getLogger(Server.class.getName());
-    
+
     /**
      * Main function to start the server
      */
@@ -89,6 +88,12 @@ public class Server {
         }
     }
 
+    /**
+     * Handle a single command from the client.
+     *
+     * @param command received from the client.
+     * @return the result of the command.
+     */
     private String handleCommand(String command) {
         command = command.replace("\n", "");
         String[] commands = command.split(" ");
@@ -116,8 +121,14 @@ public class Server {
         return errorMessage;
     }
 
-    public String operationResult(String command, int n1, int n2) {
-        switch (command){
+    /**
+     * Handle a single operation from the client.
+     *
+     * @param operation received from the client.
+     * @return the result of the operation.
+     */
+    public String operationResult(String operation, int n1, int n2) {
+        switch (operation){
             case "ADD":
                 return String.valueOf(n1 + n2);
             case "SUB":
