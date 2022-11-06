@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
 /**
  * Calculator server implementation - single threaded
  */
@@ -44,6 +45,7 @@ public class Server {
             throw new RuntimeException("Error could not create a socket on port " + PORT + ".\nError:", e);
         }
     }
+
     /**
      * Handle a single client connection: receive commands and send back the result.
      *
@@ -55,11 +57,11 @@ public class Server {
 
             LOG.log(Level.INFO, "Sent data to client, doing a pause...");
             String welcomeMessage = "Welcome to the calculator server.\n" +
-                    "OPERATION N1 N2 or N1 OPERATION N2\n" + "Valid operations are: " + OPERATORS + "\nPlease enter a command:";
+                    "Requiered form is: OPERATION N1 N2 or N1 OPERATION N2\n" + "Valid operations are: " + OPERATORS + "\nPlease enter a command:";
             toClient.write(welcomeMessage, 0, welcomeMessage.length());
             toClient.flush();
-            
-            String response="";
+
+            String response = "";
             while (true) {
                 String command = fromClient.readLine();
                 if (command.equals("exit")) {
@@ -67,7 +69,7 @@ public class Server {
                     break;
                 }
                 LOG.log(Level.INFO, "Received command: " + command);
-                 response = handleCommand(command)+"\nexit to quit or enter a new command:";
+                response = handleCommand(command) + "\nexit to quit or enter a new command:";
                 LOG.log(Level.INFO, "Sending response: " + response);
                 toClient.write(response, 0, response.length());
                 toClient.flush();
@@ -90,28 +92,51 @@ public class Server {
         String[] commands = command.split(" ");
         if (commands.length != 3) {
             return "Invalid command: syntax can be one of the following: OPERATION N1 N2 or N1 OPERATION N2 \n "
-               +     "Valid operation are "+ OPERATORS+"\nPlease enter a command:";
+                    + "Valid operation are " + OPERATORS + "\nPlease enter a command:";
         }
-        System.out.println(commands[0] + " " + commands[1] + " " + commands[2] + " ADD");
-        if (commands[0].equals("ADD")) {
-            return String.valueOf(Integer.parseInt(commands[1]) + Integer.parseInt(commands[2]));
-        } else if (commands[0].equals("MULT")) {
-            return String.valueOf(Integer.parseInt(commands[1]) * Integer.parseInt(commands[2]));
-        } else if (commands[0].equals("DIV")) {
-            return String.valueOf(Integer.parseInt(commands[1]) / Integer.parseInt(commands[2]));
-        } else if (commands[0].equals("SUB")) {
-            return String.valueOf(Integer.parseInt(commands[1]) - Integer.parseInt(commands[2]));
-        } else if (commands[1].equals("ADD")) {
-            return String.valueOf(Integer.parseInt(commands[0]) + Integer.parseInt(commands[2]));
-        } else if (commands[1].equals("MULT")) {
-            return String.valueOf(Integer.parseInt(commands[0]) * Integer.parseInt(commands[2]));
-        } else if (commands[1].equals("DIV")) {
-            return String.valueOf(Integer.parseInt(commands[0]) / Integer.parseInt(commands[2]));
-        } else if (commands[1].equals("SUB")) {
-            return String.valueOf(Integer.parseInt(commands[0]) - Integer.parseInt(commands[2]));
-        } else {
-            return "Invalid command. Please enter a command:";
+        //basic notation
+        int n1;
+        int n2;
+        try {
+            n1 = Integer.parseInt(commands[0]);
+            n2 = Integer.parseInt(commands[2]);
+            if (commands[1].equals("ADD")) {
+                return String.valueOf(Integer.parseInt(commands[0]) + Integer.parseInt(commands[2]));
+            } else if (commands[1].equals("MULT")) {
+                return String.valueOf(Integer.parseInt(commands[0]) * Integer.parseInt(commands[2]));
+            } else if (commands[1].equals("DIV")) {
+                if (Integer.parseInt(commands[2]) == 0) {
+                    return "Division by 0 is not allowed";
+                }
+                return String.valueOf(Integer.parseInt(commands[0]) / Integer.parseInt(commands[2]));
+            } else if (commands[1].equals("SUB")) {
+                return String.valueOf(Integer.parseInt(commands[0]) - Integer.parseInt(commands[2]));
+            }
+        } catch (NumberFormatException e) {
+
         }
+        //Polish notation
+        try {
+            n1 = Integer.parseInt(commands[1]);
+            n2 = Integer.parseInt(commands[2]);
+            if (commands[0].equals("ADD")) {
+                return String.valueOf(Integer.parseInt(commands[1]) + Integer.parseInt(commands[2]));
+            } else if (commands[0].equals("MULT")) {
+                return String.valueOf(Integer.parseInt(commands[1]) * Integer.parseInt(commands[2]));
+            } else if (commands[0].equals("DIV")) {
+                if (Integer.parseInt(commands[2]) == 0) {
+                    return "Division by 0 is not allowed";
+                }
+                return String.valueOf(Integer.parseInt(commands[1]) / Integer.parseInt(commands[2]));
+            } else if (commands[0].equals("SUB")) {
+                return String.valueOf(Integer.parseInt(commands[1]) - Integer.parseInt(commands[2]));
+            }
+        } catch (NumberFormatException e) {
+
+        }
+        return "Invalid command: syntax can be one of the following: OPERATION N1 N2 or N1 OPERATION N2 \n "
+                + "Valid operation are " + OPERATORS + "\nPlease enter a command:";
+
     }
 }
 
