@@ -62,10 +62,17 @@ public class Server {
             LOG.log(Level.INFO, "Sent data to client, doing a pause...");
 
             //read client input
-            while (true) {
+            while (clientSocket.isConnected()) {
                 String command = fromClient.readLine();
-                if (command.equals("exit"))
+                if (command.equals("exit")){
+                    //say goodbye to client
+                    LOG.log(Level.INFO, "closing connection: ");
+                    toClient.write("Bye bye!\n", 0, 9);
+                    toClient.flush();
+                    LOG.log(Level.INFO, "Client disconnected");
+                    clientSocket.close();
                     break;
+                }
                 LOG.log(Level.INFO, "Received command: " + command);
                 String response = handleCommand(command) + "\nExit to quit or enter a new command:";
 
@@ -75,12 +82,8 @@ public class Server {
                 LOG.log(Level.INFO, "Sending response: " + response);
 
             }
-            //say goodbye to client
 
-            LOG.log(Level.INFO, "closing connection: ");
-            toClient.write("Bye bye!\n", 0, 9);
-            toClient.flush();
-            clientSocket.close();
+
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {

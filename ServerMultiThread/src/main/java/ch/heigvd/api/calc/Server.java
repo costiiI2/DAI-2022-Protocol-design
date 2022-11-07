@@ -11,6 +11,9 @@ import java.util.logging.Logger;
  */
 public class Server {
 
+    private static final int PORT = 420;
+    private final static int MAX_CLIENTS = 10;
+
     private final static Logger LOG = Logger.getLogger(Server.class.getName());
 
     /**
@@ -28,11 +31,38 @@ public class Server {
      */
     private void start() {
 
-        /* TODO: implement the receptionist server here.
-         *  The receptionist just creates a server socket and accepts new client connections.
-         *  For a new client connection, the actual work is done in a new thread
-         *  by a new ServerWorker.
-         */
+        ServerSocket serverSocket = null;
+        int clientCount = 0;
+        try {
+// Create the server socket
+            serverSocket = new ServerSocket(PORT);
+            LOG.log(Level.INFO, "Server started on port " + PORT);
+
+
+// Waiting for new clients to connect
+            while (true) {
+                if(clientCount < MAX_CLIENTS){
+                    Socket clientSocket = serverSocket.accept();
+                    clientCount++;
+// Create new thread to handle this client
+                    ServerWorker worker = new ServerWorker(clientSocket);
+                    LOG.log(Level.INFO, "Client connected from " + clientSocket.getInetAddress());
+                    Thread thread = new Thread(worker);
+                    thread.run();
+
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error could not create a socket on port " + PORT + ".\nError:", e);
+        } finally {
+            if (serverSocket != null) {
+                try {
+                    serverSocket.close();
+                } catch (IOException e) {
+                    LOG.log(Level.SEVERE, "Error while closing the server socket", e);
+                }
+            }
+        }
 
     }
 }
