@@ -17,7 +17,9 @@ public class ServerWorker implements Runnable {
             "Syntax must be:" + FORMAT + "\nValid operations are: " + HANDELED_OPERATORS + "\nPlease enter a command:";
     private final String errorMessage = "Invalid command: syntax can be one of the following:" + FORMAT
             + "Valid operation are " + HANDELED_OPERATORS + "\nPlease enter a command:";
-    private static final int PORT = 420;
+
+    private final String exitMessage = "Bye bye!";
+
     private final static Logger LOG = Logger.getLogger(ServerWorker.class.getName());
     private BufferedReader fromClient;
     private BufferedWriter toClient;
@@ -60,14 +62,15 @@ public class ServerWorker implements Runnable {
             //read client input
             while (clientSocket.isConnected()) {
                 String command = fromClient.readLine();
-                if (command.equals("exit")){
+                if(command == null || command.equals("exit")){
+
                     //say goodbye to client
                     LOG.log(Level.INFO, "closing connection: ");
-                    toClient.write("Bye bye!\n", 0, 9);
+                    toClient.write(exitMessage, 0, exitMessage.length());
                     toClient.flush();
                     LOG.log(Level.INFO, "Client disconnected");
                     clientSocket.close();
-                    Server.clientCount--;
+
                     break;
                 }
                 LOG.log(Level.INFO, "Received command: " + command);
@@ -79,6 +82,8 @@ public class ServerWorker implements Runnable {
                 LOG.log(Level.INFO, "Sending response: " + response);
 
             }
+
+            Server.clientCount--;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
