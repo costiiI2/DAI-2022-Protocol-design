@@ -2,7 +2,6 @@ package ch.heigvd.api.calc;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,19 +10,14 @@ import java.util.logging.Logger;
  */
 public class ServerWorker implements Runnable {
     private final String HANDELED_OPERATORS = "ADD,MULT,SUB,DIV";
-    private final String ENCODING = "UTF-8";
     private final String FORMAT = "OPERATOR,OP1,OP2 or OP1,OPERATOR,OP2";
-    private final String welcomeMessage = "Welcome to the calculator server.\n" +
-            "Syntax must be:" + FORMAT + "\nValid operations are: " + HANDELED_OPERATORS + "\nPlease enter a command:";
     private final String errorMessage = "Invalid command: syntax can be one of the following:" + FORMAT
             + "Valid operation are " + HANDELED_OPERATORS + "\nPlease enter a command:";
 
-    private final String exitMessage = "Bye bye!";
-
     private final static Logger LOG = Logger.getLogger(ServerWorker.class.getName());
-    private BufferedReader fromClient;
-    private BufferedWriter toClient;
-    private Socket clientSocket;
+    private final BufferedReader fromClient;
+    private final BufferedWriter toClient;
+    private final Socket clientSocket;
 
     /**
      * Instantiation of a new worker mapped to a socket
@@ -31,6 +25,7 @@ public class ServerWorker implements Runnable {
      * @param clientSocket connected to worker
      */
     public ServerWorker(Socket clientSocket) {
+        String ENCODING = "UTF-8";
         // Log output on a single line
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%6$s%n");
         this.clientSocket = clientSocket;
@@ -55,6 +50,8 @@ public class ServerWorker implements Runnable {
     public void run() {
         //welcome client
         try {
+            String welcomeMessage = "Welcome to the calculator server.\n" +
+                    "Syntax must be:" + FORMAT + "\nValid operations are: " + HANDELED_OPERATORS + "\nPlease enter a command:";
             toClient.write(welcomeMessage, 0, welcomeMessage.length());
             toClient.flush();
             LOG.log(Level.INFO, "Sent data to client, doing a pause...");
@@ -66,6 +63,7 @@ public class ServerWorker implements Runnable {
 
                     //say goodbye to client
                     LOG.log(Level.INFO, "closing connection: ");
+                    String exitMessage = "Bye bye!";
                     toClient.write(exitMessage, 0, exitMessage.length());
                     toClient.flush();
                     LOG.log(Level.INFO, "Client disconnected");

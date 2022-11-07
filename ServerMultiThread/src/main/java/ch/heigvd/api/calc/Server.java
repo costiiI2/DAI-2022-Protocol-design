@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,7 +16,6 @@ public class Server {
     private static final int PORT = 420;
     private final static int MAX_CLIENTS = 5;
     public static int clientCount = 0;
-    private final String serverFullMessage = "Server is full, please try again later";
     private final static Logger LOG = Logger.getLogger(Server.class.getName());
 
     /**
@@ -49,7 +49,8 @@ public class Server {
                 } else {
                     //server is full
                     LOG.log(Level.INFO, "Server is full, client rejected");
-                    BufferedWriter toClient = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "utf-8"));
+                    BufferedWriter toClient = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8));
+                    String serverFullMessage = "Server is full, please try again later";
                     toClient.write(serverFullMessage, 0, serverFullMessage.length());
                     toClient.flush();
                     clientSocket.close();

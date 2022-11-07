@@ -39,7 +39,7 @@ public class Client {
             String response = new String(buffer, 0, read);
             LOG.log(Level.INFO, response);
 
-            while (true) {
+            while (clientSocket.isConnected()) {
 
                 BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
                 String input = br.readLine();
@@ -52,6 +52,7 @@ public class Client {
                 //get server respones to query
                 read = fromServer.read(buffer);
                 response = new String(buffer, 0, read);
+                System.out.println(response);
                 LOG.log(Level.INFO, response);
             }
             clientSocket.close();

@@ -15,8 +15,6 @@ public class Server {
 
     private final String HANDELED_OPERATORS = "ADD,MULT,SUB,DIV";
     private final String FORMAT = "OPERATOR,OP1,OP2 or OP1,OPERATOR,OP2";
-    private final String welcomeMessage = "Welcome to the calculator server.\n" +
-            "Syntax must be:" + FORMAT + "\nValid operations are: " + HANDELED_OPERATORS + "\nPlease enter a command:";
     private final String errorMessage = "Invalid command: syntax can be one of the following:" + FORMAT
             + "Valid operation are " + HANDELED_OPERATORS + "\nPlease enter a command:";
     private static final int PORT = 420;
@@ -53,8 +51,13 @@ public class Server {
      * @param clientSocket with the connection with the individual client.
      */
     private void handleClient(Socket clientSocket) {
-        try (BufferedReader fromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
-             BufferedWriter toClient = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"))) {
+        String ENCODING = "UTF-8";
+        String welcomeMessage = "Welcome to the calculator server.\n" +
+                "Syntax must be:" + FORMAT + "\nValid operations are: " + HANDELED_OPERATORS + "\nPlease enter a command:";
+        String exitMessage = "Bye bye!";
+
+        try (BufferedReader fromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), ENCODING));
+             BufferedWriter toClient = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), ENCODING))) {
 
             //welcome client
             toClient.write(welcomeMessage, 0, welcomeMessage.length());
@@ -64,10 +67,10 @@ public class Server {
             //read client input
             while (clientSocket.isConnected()) {
                 String command = fromClient.readLine();
-                if (command.equals("exit")){
+                if (command == null || command.equals("exit")){
                     //say goodbye to client
                     LOG.log(Level.INFO, "closing connection: ");
-                    toClient.write("Bye bye!\n", 0, 9);
+                    toClient.write(exitMessage, 0, exitMessage.length());
                     toClient.flush();
                     LOG.log(Level.INFO, "Client disconnected");
                     clientSocket.close();
@@ -80,12 +83,8 @@ public class Server {
                 toClient.write(response, 0, response.length());
                 toClient.flush();
                 LOG.log(Level.INFO, "Sending response: " + response);
-
             }
 
-
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
