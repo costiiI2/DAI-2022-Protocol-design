@@ -1,6 +1,8 @@
 package ch.heigvd.api.calc;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Level;
@@ -12,7 +14,8 @@ import java.util.logging.Logger;
 public class Server {
 
     private static final int PORT = 420;
-    private final static int MAX_CLIENTS = 10;
+    private final static int MAX_CLIENTS = 2;
+    public static int clientCount = 0;
 
     private final static Logger LOG = Logger.getLogger(Server.class.getName());
 
@@ -32,7 +35,7 @@ public class Server {
     private void start() {
 
         ServerSocket serverSocket = null;
-        int clientCount = 0;
+
         try {
 // Create the server socket
             serverSocket = new ServerSocket(PORT);
@@ -41,16 +44,23 @@ public class Server {
 
 // Waiting for new clients to connect
             while (true) {
-                if(clientCount < MAX_CLIENTS){
+                if (clientCount < MAX_CLIENTS) {
                     Socket clientSocket = serverSocket.accept();
-                    clientCount++;
 // Create new thread to handle this client
                     ServerWorker worker = new ServerWorker(clientSocket);
                     LOG.log(Level.INFO, "Client connected from " + clientSocket.getInetAddress());
                     Thread thread = new Thread(worker);
-                    thread.run();
+                    thread.start();
 
+                } else {
+                    Socket clientSocket = serverSocket.accept();
+                    BufferedWriter toClient = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "utf-8"));
+                    String errorMessage = "Server is full, please try again later";
+                    toClient.write(errorMessage, 0, errorMessage.length());
+                    toClient.flush();
+                    clientSocket.close();
                 }
+
             }
         } catch (IOException e) {
             throw new RuntimeException("Error could not create a socket on port " + PORT + ".\nError:", e);

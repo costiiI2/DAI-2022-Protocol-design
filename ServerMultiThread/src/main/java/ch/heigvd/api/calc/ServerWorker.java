@@ -32,6 +32,7 @@ public class ServerWorker implements Runnable {
         // Log output on a single line
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%6$s%n");
         this.clientSocket = clientSocket;
+        Server.clientCount++;
         try {
             fromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), ENCODING));
         } catch (IOException e) {
@@ -66,6 +67,7 @@ public class ServerWorker implements Runnable {
                     toClient.flush();
                     LOG.log(Level.INFO, "Client disconnected");
                     clientSocket.close();
+                    Server.clientCount--;
                     break;
                 }
                 LOG.log(Level.INFO, "Received command: " + command);
